@@ -73,3 +73,5 @@ function convertMs(ms) {
 function pad(str) {
   return String(str).padStart(2, '0');
 }
+
+console.log('smth');
