@@ -1,5 +1,5 @@
 //task HTML містить готову розмітку таймера, поля вибору кінцевої дати і кнопку, по кліку на яку, таймер повинен запускатися. Додай мінімальне оформлення елементів інтерфейсу.
-
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -9,11 +9,12 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
-    if (selectedDates[0] - options.defaultDate < 0) {
-      window.alert('Please choose a date in the future');
+    if (selectedDates[0] - options.defaultDate <= 0) {
+      startBtn.disabled = true;
+      Notify.failure('Please choose a date in the future');
+      return;
     }
-    !startBtn.disabled;
+    startBtn.disabled = false;
   },
 };
 
@@ -27,17 +28,25 @@ const secondsEl = document.querySelector('[data-seconds');
 const fp = flatpickr(dateInput, options);
 startBtn.disabled = true;
 
-dateInput.addEventListener('change', makeTimer);
+startBtn.addEventListener('click', makeTimer);
 
 function makeTimer() {
-  setInterval(() => {
+  const intervalID = setInterval(() => {
     const inputDate = new Date(dateInput.value);
     const diff = inputDate - Date.now();
+
+    if (diff <= 0) {
+      clearInterval(intervalID);
+      return;
+    }
+
     const { days, hours, minutes, seconds } = convertMs(diff);
     daysEl.textContent = pad(days);
     hoursEl.textContent = pad(hours);
     minutesEl.textContent = pad(minutes);
     secondsEl.textContent = pad(seconds);
+
+    startBtn.disabled = true;
     console.log(days, hours, minutes, seconds);
   }, 1000);
 }
